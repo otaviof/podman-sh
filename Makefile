@@ -1,5 +1,3 @@
-default: build
-
 IMAGE_TAG ?= "otaviof/podman-sh:latest"
 
 BUILDER_IMAGE_TAG ?= "otaviof/builder:latest"
@@ -10,6 +8,22 @@ CNI_PLUGINS_IMAGE_TAG ?= "otaviof/cni-plugins:latest"
 SLIRP4NETNS_IMAGE_TAG ?= "otaviof/slirp4netns:latest"
 FUSE_OVERLAY_IMAGE_TAG ?= "otaviof/fuse-overlay:latest"
 BUILDAH_IMAGE_TAG ?= "otaviof/buildah:latest"
+
+default: build
+
+build-deps: \
+	build-builder \
+	build-runc \
+	build-podman \
+	build-conmon \
+	build-cni-plugins \
+	build-slirp4netns \
+	build-fuse-overlay \
+	build-buildah
+
+build: \
+	build-deps \
+	build-podman-sh
 
 build-builder:
 	docker build --tag "$(BUILDER_IMAGE_TAG)" \
@@ -55,20 +69,6 @@ build-podman-sh:
 	docker build --tag "$(IMAGE_TAG)" \
 		--file containers/podman-sh/Dockerfile \
 		containers/podman-sh
-
-build-deps: \
-	build-builder \
-	build-runc \
-	build-podman \
-	build-conmon \
-	build-cni-plugins \
-	build-slirp4netns \
-	build-fuse-overlay \
-	build-buildah
-
-build: \
-	build-deps \
-	build-podman-sh
 
 install:
 	install -m 755 podman-sh /usr/local/bin/
