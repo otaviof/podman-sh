@@ -1,16 +1,34 @@
 #!/bin/bash
 
-BASH_DIR="${HOME}/.podman/.bash.d"
-STORAGE_DIR="${HOME}/.podman/containers/storage"
-DIR_NAME="$(basename ${PWD})"
-IMAGE_TAG="otaviof/podman-sh:latest"
+set -e
+
+# image name and tag
+PODMAN_SH_IMAGE_TAG="${PODMAN_SH_IMAGE_TAG:-otaviof/podman-sh:latest}"
+# base directory, where all data will be placed upon
+BASE_DIR="${HOME}/.go-dev-sh"
+# custom GOPATH directory
+GOPATH_DIR="${BASE_DIR}/gopath"
+# bash directory, to save histfile
+BASH_DIR="${BASE_DIR}/bash.d"
+# podman storage location
+STORAGE_DIR="${BASE_DIR}/.podman/containers/storage"
+
+# current directory name, to be mounted on container
+CUR_DIR_NAME="$(basename ${PWD})"
+
+# creating directories to be mounted on container
+[ -d "${GOPATH_DIR}" ] || mkdir -p "${GOPATH_DIR}"
+[ -d "${BASH_DIR}" ] || mkdir -p "${BASH_DIR}"
+[ -d "${STORAGE_DIR}" ] || mkdir -p "${STORAGE_DIR}"
+
+echo "# Podman development container for: ${CUR_DIR_NAME} at /src/${CUR_DIR_NAME}"
 
 exec docker run \
     --interactive \
     --tty \
-    --privileged \
-    --volume "${BASH_DIR}:/podman/.bash.d" \
+    --volume "${GOPATH_DIR}:/go" \
+    --volume "${BASH_DIR}:/root/.bash.d" \
     --volume "${STORAGE_DIR}:/podman/.local/share/containers/storage" \
-    --volume "${PWD}:/src/${DIR_NAME}" \
-    --workdir "/src/${DIR_NAME}" \
-    $IMAGE_TAG
+    --volume "${PWD}:/src/${CUR_DIR_NAME}" \
+    --workdir "/src/${CUR_DIR_NAME}" \
+    ${PODMAN_SH_IMAGE_TAG}
