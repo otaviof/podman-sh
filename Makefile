@@ -12,7 +12,6 @@ BUILDAH_IMAGE_TAG ?= "otaviof/buildah:latest"
 default: build
 
 build-deps: \
-	build-builder \
 	build-runc \
 	build-podman \
 	build-conmon \
@@ -24,11 +23,6 @@ build-deps: \
 build: \
 	build-deps \
 	build-podman-sh
-
-build-builder:
-	docker build --tag "$(BUILDER_IMAGE_TAG)" \
-		--file containers/builder/Dockerfile \
-		containers/builder
 
 build-runc:
 	docker build --tag "$(RUNC_IMAGE_TAG)" \
