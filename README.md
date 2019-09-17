@@ -9,6 +9,8 @@ This repository is packing those tools in a single container and ships with a si
 spin up `podman-sh` container in the a practical way, mounting current directory inside. Images are
 stored in [Docker-Hub][dockerhub] registry
 
+Container is based on [`go-dev-sh`][go-dev-sh] base image, and therefore it able to build Go.
+
 ## Usage
 
 Simply run `podman-sh` in a given directory:
@@ -40,3 +42,4 @@ make install
 ```
 
 [dockerhub]: https://hub.docker.com/r/otaviof/podman-sh
+[go-dev-sh]: https://github.com/otaviof/go-dev-sh
