@@ -2,11 +2,17 @@
 # Podman
 #
 
-FROM otaviof/builder
+FROM otaviof/go-dev-sh:latest
 
 ARG PODMAN_VERSION="v1.5.1"
 ARG PODMAN_REL_DIR="src/github.com/containers/libpod"
 ARG PODMAN_GIT_URL="https://github.com/containers/libpod.git"
+
+RUN apt-get update && \
+    apt-get install -y \
+    btrfs-progs \
+    libbtrfs-dev \
+    libseccomp-dev
 
 RUN set -eux && \
     git clone --branch ${PODMAN_VERSION} ${PODMAN_GIT_URL} ${GOPATH}/${PODMAN_REL_DIR} && \
@@ -19,6 +25,5 @@ RUN set -eux && \
     make \
         LDFLAGS="-s -w -extldflags '-static'" \
         BUILDTAGS='seccomp selinux varlink exclude_graphdriver_devicemapper containers_image_ostree_stub containers_image_openpgp' && \
-    mv -v bin/podman /usr/local/bin/podman && \
-    [ "$(ldd /usr/local/bin/podman | wc -l)" -eq 0 ] || (ldd /usr/local/bin/podman; false)
+    mv -v bin/podman /usr/local/bin/podman
 

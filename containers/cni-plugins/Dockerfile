@@ -2,7 +2,7 @@
 # CNI Plugins
 #
 
-FROM otaviof/builder
+FROM otaviof/go-dev-sh:latest
 
 ARG CNI_VERSION="v0.7.5"
 ARG CNI_GIT_URL="https://github.com/containernetworking/plugins.git"

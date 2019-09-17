@@ -2,15 +2,20 @@
 # buildah
 #
 
-FROM otaviof/builder
+FROM otaviof/go-dev-sh:latest
 
-ARG BUILDAH_VERSION="v1.10.1"
-ARG BUILDAH_GIT_URL="https://github.com/containers/buildah.git"
+ARG BUILDAH_REPO="github.com/containers/buildah"
 ARG BUILDAH_REL_DIR="src/github.com/containers/buildah"
 
+RUN apt-get update && \
+    apt-get install -y \
+    libdevmapper-dev \
+    libgpgme-dev \
+    libseccomp-dev
+
 RUN set -eux && \
-    git clone --branch ${BUILDAH_VERSION} ${BUILDAH_GIT_URL} ${GOPATH}/${BUILDAH_REL_DIR} && \
+    go get -u -d ${BUILDAH_REPO} && \
     cd ${GOPATH}/${BUILDAH_REL_DIR} && \
-    make static && \
-    mv -v buildah.static /usr/local/bin/buildah
+    make && \
+    mv -v buildah /usr/local/bin/buildah
 

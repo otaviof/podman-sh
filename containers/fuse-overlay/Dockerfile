@@ -2,13 +2,20 @@
 # fuse-overlay
 #
 
-FROM otaviof/builder
+FROM otaviof/go-dev-sh:latest
 
 ARG LIBFUSE_GIT_URL="https://github.com/libfuse/libfuse"
 ARG LIBFUSE_VERSION="fuse-3.6.2"
 
 ARG FUSEOVERLAYFS_GIT_URL="https://github.com/containers/fuse-overlayfs"
 ARG FUSEOVERLAYFS_VERSION="v0.4.1"
+
+RUN apt-get update && \
+    apt-get install -y \
+    dh-autoreconf \
+    meson \
+    libudev-dev \
+    udev
 
 RUN set -eux && \
     git clone --branch=${LIBFUSE_VERSION} ${LIBFUSE_GIT_URL} && \
@@ -30,6 +37,3 @@ RUN set -eux && \
     make && \
     make install && \
     fuse-overlayfs --help >/dev/null
-    # [ "$(ldd /usr/bin/fuse-overlayfs | grep -Ev '^\s+ldd \(0x[0-9a-f]+\)$' | wc -l)" -eq 0 ] || \
-    # (ldd /usr/bin/fuse-overlayfs ; false)
-
