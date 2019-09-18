@@ -26,8 +26,10 @@ echo "# Podman development container for: ${CUR_DIR_NAME} at /src/${CUR_DIR_NAME
 exec docker run \
     --interactive \
     --tty \
+    --privileged \
+    --env "HISTFILE=/podman/.bash.d/histfile" \
     --volume "${GOPATH_DIR}:/go" \
-    --volume "${BASH_DIR}:/root/.bash.d" \
+    --volume "${BASH_DIR}:/podman/.bash.d" \
     --volume "${STORAGE_DIR}:/podman/.local/share/containers/storage" \
     --volume "${PWD}:/src/${CUR_DIR_NAME}" \
     --workdir "/src/${CUR_DIR_NAME}" \
