@@ -21,15 +21,15 @@ CUR_DIR_NAME="$(basename ${PWD})"
 [ -d "${BASH_DIR}" ] || mkdir -p "${BASH_DIR}"
 [ -d "${STORAGE_DIR}" ] || mkdir -p "${STORAGE_DIR}"
 
-echo "# Podman development container for: ${CUR_DIR_NAME} at /src/${CUR_DIR_NAME}"
+echo "# Podman development container for: '${CUR_DIR_NAME}' at '/src/${CUR_DIR_NAME}'"
 
 exec docker run \
     --interactive \
     --tty \
     --privileged \
     --env "HISTFILE=/podman/.bash.d/histfile" \
-    --volume "${GOPATH_DIR}:/go" \
     --volume "${BASH_DIR}:/podman/.bash.d" \
+    --volume "${GOPATH_DIR}:/go" \
     --volume "${STORAGE_DIR}:/podman/.local/share/containers/storage" \
     --volume "${PWD}:/src/${CUR_DIR_NAME}" \
     --workdir "/src/${CUR_DIR_NAME}" \

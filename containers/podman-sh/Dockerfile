@@ -54,6 +54,8 @@ RUN set -x && \
     cp -v /root/.inputrc /podman && \
     chown -R podman:podman /podman
 
+COPY profile /podman/.profile
+
 RUN set -x ; \
     PODMAN_VERSION="$(podman --version |sed 's/podman version //')" ; \
     wget -O /etc/containers/registries.conf \
