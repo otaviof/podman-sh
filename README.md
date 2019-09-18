@@ -1,22 +1,22 @@
 # `podman-sh`
 
 Using `podman` and `buildah` on Mac is not technically possible, therefore users have been turning
-back to create virtual-machines in other to have the full blown Linux experience. If you only need
+back to create virtual-machines in order to have the full blown Linux experience. If you only need
 to run `podman`/`buildah` as part of workflow, you could very well have a simple container which
 contains the tooling necessary.
 
-This repository is packing those tools in a single container and ships with a simple shell script to
+This repository is packing those tools in a single place and ships with a simple shell script to
 spin up `podman-sh` container in the a practical way, mounting current directory inside. Images are
 stored in [Docker-Hub][dockerhub] registry
 
-Container is based on [`go-dev-sh`][go-dev-sh] base image, and therefore it able to build Go.
+Container is based on [`go-dev-sh`][go-dev-sh] base image, and therefore it able to build Go
+projects.
 
 ## Usage
 
 Simply run `podman-sh` in a given directory:
 
-
-```
+```bash
 podman-sh
 ```
 
