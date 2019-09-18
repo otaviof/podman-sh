@@ -23,7 +23,7 @@ RUN set -eux && \
     cat pkg/rootless/rootless_linux.go |head -n 30 && \
     set -eux ; \
     make \
-        LDFLAGS="-s -w -extldflags '-static'" \
+        LDFLAGS="-s -w" \
         BUILDTAGS='seccomp selinux varlink exclude_graphdriver_devicemapper containers_image_ostree_stub containers_image_openpgp' && \
     mv -v bin/podman /usr/local/bin/podman
 

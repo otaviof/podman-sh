@@ -15,7 +15,12 @@ FROM otaviof/go-dev-sh:latest
 RUN apt-get update && \
     apt-get install -y \
     ca-certificates \
-    iptables
+    fuse3 \
+    iptables \
+    libgpgme11 \
+    libdevmapper1.02.1 \
+    sudo \
+    uidmap
 
 COPY --from=RUNC /usr/local/bin/runc /usr/local/bin/runc
 COPY --from=PODMAN /usr/local/bin/podman /usr/local/bin/podman
@@ -26,14 +31,30 @@ COPY --from=FUSEOVERLAY /usr/local/bin/fusermount3 /usr/local/bin/fusermount3
 COPY --from=SLIRP4NETNS /src/slirp4netns/slirp4netns /usr/local/bin/slirp4netns
 COPY --from=BUILDAH /usr/local/bin/buildah /usr/local/bin/buildah
 
-RUN set -eux ; \
+RUN set -eux && \
+    runc --help >/dev/null && \
+    podman --help >/dev/null && \
+    buildah --help >/dev/null && \
+    /usr/libexec/podman/conmon --help >/dev/null && \
+    slirp4netns --help >/dev/null && \
+    fuse-overlayfs --help >/dev/null
+
+COPY sudoers /etc/sudoers
+
+RUN set -x && \
+    addgroup --system --gid 100000 podman && \
+    adduser --system --disabled-password --uid 100000 --shell /bin/bash --home /podman --ingroup podman podman && \
+    echo 'podman:100001:65536' > /etc/subuid && \
+    echo 'podman:100001:65536' > /etc/subgid && \
     mkdir -p -m 775 \
         /etc/containers \
         /etc/cni/net.d \
         /podman/.config/containers \
-        /podman/.local/share/containers/storage/libpod
+        /podman/.local/share/containers/storage/libpod && \
+    cp -v /root/.inputrc /podman && \
+    chown -R podman:podman /podman
 
-RUN set -eux ; \
+RUN set -x ; \
     PODMAN_VERSION="$(podman --version |sed 's/podman version //')" ; \
     wget -O /etc/containers/registries.conf \
         https://raw.githubusercontent.com/projectatomic/registries/master/registries.fedora && \
@@ -42,10 +63,8 @@ RUN set -eux ; \
     wget -O /etc/cni/net.d/99-bridge.conflist \
         https://raw.githubusercontent.com/containers/libpod/v$PODMAN_VERSION/cni/87-podman-bridge.conflist
 
-RUN runc --help >/dev/null
-RUN podman --help >/dev/null
-RUN /usr/libexec/podman/conmon --help >/dev/null
-RUN slirp4netns --help >/dev/null
-RUN fuse-overlayfs --help >/dev/null
-
+VOLUME /go
+VOLUME /podman/.bash.d
 VOLUME /podman/.local/share/containers/storage
+
+USER podman
