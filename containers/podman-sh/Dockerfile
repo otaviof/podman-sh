@@ -55,15 +55,9 @@ RUN set -x && \
     chown -R podman:podman /podman
 
 COPY profile /podman/.profile
-
-RUN set -x ; \
-    PODMAN_VERSION="$(podman --version |sed 's/podman version //')" ; \
-    wget -O /etc/containers/registries.conf \
-        https://raw.githubusercontent.com/projectatomic/registries/master/registries.fedora && \
-    wget -O /etc/containers/policy.json \
-        https://raw.githubusercontent.com/containers/skopeo/master/default-policy.json && \
-    wget -O /etc/cni/net.d/99-bridge.conflist \
-        https://raw.githubusercontent.com/containers/libpod/v$PODMAN_VERSION/cni/87-podman-bridge.conflist
+COPY registries.conf /etc/containers/registries.conf
+COPY policy.json /etc/containers/policy.json
+COPY 99-bridge.conflist /etc/cni/net.d/99-bridge.conflist
 
 VOLUME /go
 VOLUME /podman/.bash.d
