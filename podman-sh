@@ -2,6 +2,24 @@
 
 set -e
 
+OPTS=`getopt -o d --long no-docker -n 'parse-options' -- "$@"`
+
+if [ $? != 0 ] ; then
+    echo "Failed parsing options." >&2
+    exit 1
+fi
+
+eval set -- "$OPTS"
+
+NO_DOCKER=false
+while true; do
+    case "$1" in
+        -d | --no-docker ) NO_DOCKER=true ; shift ;;
+        -- ) shift; break ;;
+        * ) break ;;
+    esac
+done
+
 # image name and tag
 PODMAN_SH_IMAGE_TAG="${PODMAN_SH_IMAGE_TAG:-otaviof/podman-sh:latest}"
 # base directory, where all data will be placed upon
@@ -26,6 +44,12 @@ CUR_DIR_NAME="$(basename ${PWD})"
 [ -d "${STORAGE_DIR}" ] || mkdir -v -p "${STORAGE_DIR}"
 [ -d "${DOCKER_DIR}" ] || mkdir -v -p "${DOCKER_DIR}"
 
+# using a empty string when docker socket should not be mounted
+DOCKER_SOCK_MOUNT="--volume ${DOCKER_SOCK}:${DOCKER_SOCK}"
+if [ $NO_DOCKER = true ] ; then
+    DOCKER_SOCK_MOUNT=""
+fi
+
 cat <<EOS
 #
 # Podman development container for: '${CUR_DIR_NAME}' at '/src/${CUR_DIR_NAME}'
@@ -39,7 +63,7 @@ exec docker run \
     --env "HISTFILE=/podman/.bash.d/histfile" \
     --volume "${BASH_DIR}:/podman/.bash.d" \
     --volume "${DOCKER_DIR}:/podman/.docker" \
-    --volume "${DOCKER_SOCK}:${DOCKER_SOCK}" \
+    $DOCKER_SOCK_MOUNT \
     --volume "${GOPATH_DIR}:/go" \
     --volume "${STORAGE_DIR}:/podman/.local/share/containers/storage" \
     --volume "${PWD}:/src/${CUR_DIR_NAME}" \
