@@ -20,14 +20,21 @@ Simply run `podman-sh` in a given directory:
 podman-sh
 ```
 
+And use `--no-docker` to disable Docker socket being shared with the container:
+
+```bash
+podman-sh --no-docker
+```
+
 It will start a shell in the base container, mounting current directory on containers `/src`.
 Additionally, the following local directories are mounted as well:
 
-| Mount Point | Local Directory        | Description                     |
-|-------------|------------------------|---------------------------------|
-| `/go`       | `~/.go-dev-sh/gopath`  | External `$GOPATH` directory    |
-| `~/.bash.d` | `~/.go-dev-sh/bash.d`  | Shell history                   |
-| `~/.local`  | `~/.go-dev-sh/storage` | Podman storage directory        |
+| Mount Point            | Local Directory        | Description                  |
+|------------------------|------------------------|------------------------------|
+| `/var/run/docker.sock` | `/var/run/docker.sock` | Optional, Docker socket      |
+| `/go`                  | `~/.go-dev-sh/gopath`  | External `$GOPATH` directory |
+| `~/.bash.d`            | `~/.go-dev-sh/bash.d`  | Shell history                |
+| `~/.local`             | `~/.go-dev-sh/storage` | Podman storage directory     |
 
 Those locations can be overwritten via environment variables used in `podman-sh`.
 

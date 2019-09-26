@@ -2,6 +2,10 @@
 
 set -e
 
+#
+# Command Line Options
+#
+
 OPTS=`getopt -o d --long no-docker -n 'parse-options' -- "$@"`
 
 if [ $? != 0 ] ; then
@@ -11,7 +15,9 @@ fi
 
 eval set -- "$OPTS"
 
+# disable mouting local docker socket in container
 NO_DOCKER=false
+
 while true; do
     case "$1" in
         -d | --no-docker ) NO_DOCKER=true ; shift ;;
@@ -19,6 +25,10 @@ while true; do
         * ) break ;;
     esac
 done
+
+#
+# Global Variables
+#
 
 # image name and tag
 PODMAN_SH_IMAGE_TAG="${PODMAN_SH_IMAGE_TAG:-otaviof/podman-sh:latest}"
@@ -43,6 +53,10 @@ CUR_DIR_NAME="$(basename ${PWD})"
 [ -d "${BASH_DIR}" ] || mkdir -v -p "${BASH_DIR}"
 [ -d "${STORAGE_DIR}" ] || mkdir -v -p "${STORAGE_DIR}"
 [ -d "${DOCKER_DIR}" ] || mkdir -v -p "${DOCKER_DIR}"
+
+#
+# Container Run
+#
 
 # using a empty string when docker socket should not be mounted
 DOCKER_SOCK_MOUNT="--volume ${DOCKER_SOCK}:${DOCKER_SOCK}"
