@@ -67,6 +67,9 @@ build-podman-sh:
 install:
 	install -m 755 podman-sh /usr/local/bin/
 
+push: build
+	docker push "$(IMAGE_TAG)"
+
 clean:
 	docker rmi \
 		$(BUILDER_IMAGE_TAG) \
