@@ -8,6 +8,8 @@ PODMAN_SH_IMAGE_TAG="${PODMAN_SH_IMAGE_TAG:-otaviof/podman-sh:latest}"
 BASE_DIR="${HOME}/.go-dev-sh"
 # docker configuration directory
 DOCKER_DIR="${HOME}/.docker"
+# docker socket
+DOCKER_SOCK="/var/run/docker.sock"
 # custom GOPATH directory
 GOPATH_DIR="${BASE_DIR}/gopath"
 # bash directory, to save histfile
@@ -37,6 +39,7 @@ exec docker run \
     --env "HISTFILE=/podman/.bash.d/histfile" \
     --volume "${BASH_DIR}:/podman/.bash.d" \
     --volume "${DOCKER_DIR}:/podman/.docker" \
+    --volume "${DOCKER_SOCK}:${DOCKER_SOCK}" \
     --volume "${GOPATH_DIR}:/go" \
     --volume "${STORAGE_DIR}:/podman/.local/share/containers/storage" \
     --volume "${PWD}:/src/${CUR_DIR_NAME}" \
