@@ -4,7 +4,7 @@
 
 FROM otaviof/go-dev-sh:latest
 
-ARG PODMAN_VERSION="v1.5.1"
+ARG PODMAN_VERSION="v1.6.0"
 ARG PODMAN_REL_DIR="src/github.com/containers/libpod"
 ARG PODMAN_GIT_URL="https://github.com/containers/libpod.git"
 
