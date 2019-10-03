@@ -70,16 +70,25 @@ cat <<EOS
 #
 EOS
 
-exec docker run \
-    --interactive \
-    --tty \
-    --privileged \
-    --env "HISTFILE=/podman/.bash.d/histfile" \
-    --volume "${BASH_DIR}:/podman/.bash.d" \
-    --volume "${DOCKER_DIR}:/podman/.docker" \
-    $DOCKER_SOCK_MOUNT \
-    --volume "${GOPATH_DIR}:/go" \
-    --volume "${STORAGE_DIR}:/podman/.local/share/containers/storage" \
-    --volume "${PWD}:/src/${CUR_DIR_NAME}" \
-    --workdir "/src/${CUR_DIR_NAME}" \
-    ${PODMAN_SH_IMAGE_TAG}
+# checking if contianer name is alredy present, otherwise running a new one
+if ( docker ps -a -q -f status=exited -f name="${CUR_DIR_NAME}" |grep -q '.' ) ; then
+    echo "# -- reusing existing image --"
+    exec docker start "${CUR_DIR_NAME}" \
+        --attach \
+        --interactive
+else
+    exec docker run \
+        --name="${CUR_DIR_NAME}" \
+        --interactive \
+        --tty \
+        --privileged \
+        --env="HISTFILE=/podman/.bash.d/histfile" \
+        --volume="${BASH_DIR}:/podman/.bash.d" \
+        --volume="${DOCKER_DIR}:/podman/.docker" \
+        $DOCKER_SOCK_MOUNT \
+        --volume="${GOPATH_DIR}:/go" \
+        --volume="${STORAGE_DIR}:/podman/.local/share/containers/storage" \
+        --volume="${PWD}:/src/${CUR_DIR_NAME}" \
+        --workdir="/src/${CUR_DIR_NAME}" \
+        ${PODMAN_SH_IMAGE_TAG}
+fi
