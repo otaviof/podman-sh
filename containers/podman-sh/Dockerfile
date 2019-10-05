@@ -59,8 +59,13 @@ COPY registries.conf /etc/containers/registries.conf
 COPY policy.json /etc/containers/policy.json
 COPY 99-bridge.conflist /etc/cni/net.d/99-bridge.conflist
 
+COPY run-delve.sh /usr/local/bin/run-delve.sh
+RUN chmod +x /usr/local/bin/run-delve.sh
+
 VOLUME /go
 VOLUME /podman/.bash.d
 VOLUME /podman/.local/share/containers/storage
+
+EXPOSE 40000
 
 USER podman
