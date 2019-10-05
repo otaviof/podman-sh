@@ -6,7 +6,7 @@ set -e
 # Command Line Options
 #
 
-OPTS=`getopt -o d --long no-docker -n 'parse-options' -- "$@"`
+OPTS=`getopt -o dtp: --long no-docker,tag:,port: -n 'parse-options' -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Failed parsing options." >&2
@@ -17,10 +17,16 @@ eval set -- "$OPTS"
 
 # disable mouting local docker socket in container
 NO_DOCKER=false
+# image name and tag
+PODMAN_SH_IMAGE_TAG="otaviof/podman-sh:latest"
+# delve local port
+DELVE_LOCAL_PORT="40000"
 
 while true; do
     case "$1" in
         -d | --no-docker ) NO_DOCKER=true ; shift ;;
+        -t | --tag ) PODMAN_SH_IMAGE_TAG="$2" ; shift ; shift ;;
+        -p | --port ) DELVE_LOCAL_PORT="$2" ; shift ; shift ;;
         -- ) shift; break ;;
         * ) break ;;
     esac
@@ -30,8 +36,6 @@ done
 # Global Variables
 #
 
-# image name and tag
-PODMAN_SH_IMAGE_TAG="${PODMAN_SH_IMAGE_TAG:-otaviof/podman-sh:latest}"
 # base directory, where all data will be placed upon
 BASE_DIR="${HOME}/.go-dev-sh"
 # docker configuration directory
@@ -72,7 +76,7 @@ EOS
 
 # checking if contianer name is alredy present, otherwise running a new one
 if ( docker ps -a -q -f status=exited -f name="${CUR_DIR_NAME}" |grep -q '.' ) ; then
-    echo "# -- reusing existing image --"
+    echo "# -- reusing existing image '${CUR_DIR_NAME}' --"
     exec docker start "${CUR_DIR_NAME}" \
         --attach \
         --interactive
@@ -82,11 +86,14 @@ else
         --interactive \
         --tty \
         --privileged \
+        --security-opt="seccomp:unconfined" \
+        --publish="40000:${DELVE_LOCAL_PORT}" \
         --env="HISTFILE=/podman/.bash.d/histfile" \
+        --env="GOPATH=${GOPATH}" \
         --volume="${BASH_DIR}:/podman/.bash.d" \
         --volume="${DOCKER_DIR}:/podman/.docker" \
         $DOCKER_SOCK_MOUNT \
-        --volume="${GOPATH_DIR}:/go" \
+        --volume="${GOPATH_DIR}:${GOPATH}" \
         --volume="${STORAGE_DIR}:/podman/.local/share/containers/storage" \
         --volume="${PWD}:/src/${CUR_DIR_NAME}" \
         --workdir="/src/${CUR_DIR_NAME}" \
