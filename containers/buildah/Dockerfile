@@ -4,7 +4,7 @@
 
 FROM otaviof/go-dev-sh:latest
 
-ARG BUILDAH_VERSION="v1.10.1"
+ARG BUILDAH_VERSION="v1.11.3"
 ARG BUILDAH_GIT_URL="https://github.com/containers/buildah.git"
 ARG BUILDAH_REL_DIR="src/github.com/containers/buildah"
 
