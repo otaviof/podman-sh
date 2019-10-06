@@ -63,4 +63,4 @@ VOLUME /go
 VOLUME /podman/.bash.d
 VOLUME /podman/.local/share/containers/storage
 
-USER podman
+# USER podman
