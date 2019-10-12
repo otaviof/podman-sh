@@ -9,8 +9,8 @@ set -e
 OPTS=`getopt -o dtp: --long no-docker,tag:,port: -n 'parse-options' -- "$@"`
 
 if [ $? != 0 ] ; then
-    echo "Failed parsing options." >&2
-    exit 1
+	echo "Failed parsing options." >&2
+	exit 1
 fi
 
 eval set -- "$OPTS"
@@ -21,12 +21,12 @@ NO_DOCKER=false
 PODMAN_SH_IMAGE_TAG="otaviof/podman-sh:latest"
 
 while true; do
-    case "$1" in
-        -d | --no-docker ) NO_DOCKER=true ; shift ;;
-        -t | --tag ) PODMAN_SH_IMAGE_TAG="$2" ; shift ; shift ;;
-        -- ) shift; break ;;
-        * ) break ;;
-    esac
+	case "$1" in
+		-d | --no-docker ) NO_DOCKER=true ; shift ;;
+		-t | --tag ) PODMAN_SH_IMAGE_TAG="$2" ; shift ; shift ;;
+		-- ) shift; break ;;
+		* ) break ;;
+	esac
 done
 
 #
@@ -34,25 +34,27 @@ done
 #
 
 # base directory, where all data will be placed upon
-BASE_DIR="${HOME}/.go-dev-sh"
+BASE_DIR="${HOME}/.podman"
 # docker configuration directory
 DOCKER_DIR="${HOME}/.docker"
 # docker socket
 DOCKER_SOCK="/var/run/docker.sock"
-# custom GOPATH directory
-GOPATH_DIR="${BASE_DIR}/gopath"
 # bash directory, to save histfile
 BASH_DIR="${BASE_DIR}/bash.d"
-# podman storage location
-STORAGE_DIR="${BASE_DIR}/.podman/containers/storage"
+# podman permanent storage
+STORAGE_DIR="${BASE_DIR}/data"
+# podman runtime storage
+STORAGE_RUNTIME="${BASE_DIR}/runtime"
+# container home directory
+CONTAINER_HOME="/root"
 
 # current directory name, to be mounted on container
 CUR_DIR_NAME="$(basename ${PWD})"
 
 # creating directories to be mounted on container
-[ -d "${GOPATH_DIR}" ] || mkdir -v -p "${GOPATH_DIR}"
 [ -d "${BASH_DIR}" ] || mkdir -v -p "${BASH_DIR}"
 [ -d "${STORAGE_DIR}" ] || mkdir -v -p "${STORAGE_DIR}"
+[ -d "${STORAGE_RUNTIME}" ] || mkdir -v -p "${STORAGE_RUNTIME}"
 [ -d "${DOCKER_DIR}" ] || mkdir -v -p "${DOCKER_DIR}"
 
 #
@@ -60,9 +62,9 @@ CUR_DIR_NAME="$(basename ${PWD})"
 #
 
 # using a empty string when docker socket should not be mounted
-DOCKER_SOCK_MOUNT="--volume ${DOCKER_SOCK}:${DOCKER_SOCK}"
+DOCKER_SOCK_MOUNT="--volume=${DOCKER_SOCK}:${DOCKER_SOCK}"
 if [ $NO_DOCKER = true ] ; then
-    DOCKER_SOCK_MOUNT=""
+	DOCKER_SOCK_MOUNT=""
 fi
 
 cat <<EOS
@@ -71,26 +73,22 @@ cat <<EOS
 #
 EOS
 
-# checking if contianer name is alredy present, otherwise running a new one
-if ( docker ps -a -q -f status=exited -f name="${CUR_DIR_NAME}" |grep -q '.' ) ; then
-    echo "# -- reusing existing image '${CUR_DIR_NAME}' --"
-    exec docker start "${CUR_DIR_NAME}" \
-        --attach \
-        --interactive
-else
-    exec docker run \
-        --name="${CUR_DIR_NAME}" \
-        --interactive \
-        --tty \
-        --privileged \
-        --security-opt="seccomp:unconfined" \
-        --env="HISTFILE=/podman/.bash.d/histfile" \
-        --volume="${BASH_DIR}:/podman/.bash.d" \
-        --volume="${DOCKER_DIR}:/podman/.docker" \
-        $DOCKER_SOCK_MOUNT \
-        --volume="${GOPATH_DIR}:/go" \
-        --volume="${STORAGE_DIR}:/podman/.local/share/containers/storage" \
-        --volume="${PWD}:/src/${CUR_DIR_NAME}" \
-        --workdir="/src/${CUR_DIR_NAME}" \
-        ${PODMAN_SH_IMAGE_TAG}
-fi
+set -x
+exec docker run \
+	--name="${CUR_DIR_NAME}" \
+	--interactive \
+	--tty \
+	--rm \
+	--net="host" \
+	--privileged \
+	--security-opt="label:disable" \
+	--security-opt="seccomp:unconfined" \
+	--env="HISTFILE=${CONTAINER_HOME}/.bash.d/histfile" \
+	$DOCKER_SOCK_MOUNT \
+	--volume="${DOCKER_DIR}:${CONTAINER_HOME}/.docker" \
+	--volume="${BASH_DIR}:${CONTAINER_HOME}/.bash.d" \
+	--volume="${STORAGE_DIR}:/var/lib/containers" \
+	--volume="${STORAGE_RUNTIME}:/var/run/containers" \
+	--volume="${PWD}:/src/${CUR_DIR_NAME}" \
+	--workdir="/src/${CUR_DIR_NAME}" \
+	${PODMAN_SH_IMAGE_TAG}

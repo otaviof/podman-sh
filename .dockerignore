@@ -1,0 +1,4 @@
+Makefile
+podman-sh
+.git*
+*.md
