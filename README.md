@@ -1,16 +1,14 @@
+<p align="center">
+	<a alt="Docker-Cloud Build Status" href="https://hub.docker.com/r/otaviof/podman-sh">
+		<img alt="Docker-Cloud Build Status" src="https://img.shields.io/docker/cloud/build/otaviof/podman-sh.svg">
+	</a>
+</p>
+
 # `podman-sh`
 
-Using `podman` and `buildah` on Mac is not technically possible, therefore users have been turning
-back to create virtual-machines in order to have the full blown Linux experience. If you only need
-to run `podman`/`buildah` as part of workflow, you could very well have a simple container which
-contains the tooling necessary.
-
-This repository is packing those tools in a single place and ships with a simple shell script to
-spin up `podman-sh` container in the a practical way, mounting current directory inside. Images are
-stored in [Docker-Hub][dockerhub] registry
-
-Container is based on [`go-dev-sh`][go-dev-sh] base image, and therefore it able to build Go
-projects.
+Composes a development workspace with `podman`, `buildah` and Golang, with scripting around to make
+it easy to spin it up against a project directory. This container can also be used in
+[`.devcontainer.json`][devcontainer] for VScode remote development.
 
 ## Usage
 
@@ -29,14 +27,12 @@ podman-sh --no-docker
 It will start a shell in the base container, mounting current directory on containers `/src`.
 Additionally, the following local directories are mounted as well:
 
-| Mount Point            | Local Directory        | Description                  |
-|------------------------|------------------------|------------------------------|
-| `/var/run/docker.sock` | `/var/run/docker.sock` | Optional, Docker socket      |
-| `/go`                  | `~/.go-dev-sh/gopath`  | External `$GOPATH` directory |
-| `~/.bash.d`            | `~/.go-dev-sh/bash.d`  | Shell history                |
-| `~/.local`             | `~/.go-dev-sh/storage` | Podman storage directory     |
-
-Those locations can be overwritten via environment variables used in `podman-sh`.
+| Mount Point            | Local Directory        | Description                      |
+|------------------------|------------------------|----------------------------------|
+| `~/.bash.d`            | `~/.podman/bash.d`     | Shell history, and settings      |
+| `/var/lib/containers`  | `~/.podman/storage`    | Podman storage directory         |
+| `/var/run/containers`  | `~/.podman/runtime`    | Podman runtime storage directory |
+| `/var/run/docker.sock` | `/var/run/docker.sock` | Optional, Docker socket          |
 
 ## Building
 
@@ -52,5 +48,4 @@ To install `podman-sh` in `/usr/local/bin`, run:
 make install
 ```
 
-[dockerhub]: https://hub.docker.com/r/otaviof/podman-sh
-[go-dev-sh]: https://github.com/otaviof/go-dev-sh
+[devcontainer]: https://code.visualstudio.com/docs/remote/containers#_creating-a-devcontainerjson-file
