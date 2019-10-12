@@ -1,10 +1,7 @@
 FROM quay.io/podman/stable:latest
 
 RUN yum -y install \
-	device-mapper-devel \
 	git \
-	gpgme-devel \
-	make \
 	buildah \
 	which \
 	; \
