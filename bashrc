@@ -7,3 +7,4 @@ alias ls='ls --color -F'
 
 [[ -f /etc/bashrc ]] && source /etc/bashrc
 [[ -d ~/.bash.d ]] && source ~/.bash.d/*.sh
+[[ -f ~/.profile ]] && source ~/.profile
