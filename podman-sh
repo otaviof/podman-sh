@@ -81,6 +81,7 @@ exec docker run \
 	--rm \
 	--net="host" \
 	--privileged \
+	--cap-add="all" \
 	--security-opt="label:disable" \
 	--security-opt="seccomp:unconfined" \
 	--env="HISTFILE=${CONTAINER_HOME}/.bash.d/histfile" \
