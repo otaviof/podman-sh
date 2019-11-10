@@ -2,6 +2,7 @@ FROM quay.io/podman/stable:latest
 
 RUN yum -y install \
 	git \
+	make \
 	buildah \
 	which \
 	; \
