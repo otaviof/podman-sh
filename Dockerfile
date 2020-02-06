@@ -1,9 +1,14 @@
 FROM quay.io/podman/stable:latest
 
+# docker community repository and docker client
+RUN dnf -y install dnf-plugins-core && \
+	dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+
 RUN yum -y install \
 	git \
 	make \
 	buildah \
+	docker-ce-cli \
 	which \
 	; \
 	rm -rf /var/cache /var/log/dnf* /var/log/yum.*
