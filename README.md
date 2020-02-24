@@ -10,6 +10,13 @@ Composes a development workspace with `podman`, `buildah` and Golang, with scrip
 it easy to spin it up against a project directory. This container can also be used in
 [`.devcontainer.json`][devcontainer] for VScode remote development.
 
+## Images
+
+The following images are published out of this project:
+
+* `otaviof/buildah-sh:latest`: buildah;
+* `otaviof/podman-sh:latest`: buildah and podman;
+
 ## Usage
 
 Simply run `podman-sh` in a given directory:
